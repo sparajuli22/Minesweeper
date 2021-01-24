@@ -1,11 +1,9 @@
 package com.example.minesweeper;
 
-import java.util.List;
-import java.util.ArrayList;
 import java.util.Random;
 
 public class MineBoard {
-    ArrayList<ArrayList<Square>> mineBoard = new ArrayList<ArrayList<Square>>();
+    Square[][] mineBoard;
     int row;
     int column;
     int mines;
@@ -16,14 +14,16 @@ public class MineBoard {
         this.row = row;
         this.column = column;
         this.mines = mines;
+        mineBoard = new Square[row][column];
         for (int i = 0; i < row; i++){
-            mineBoard.add(new ArrayList<Square>());
             for (int j = 0; j < column; j++){
-                mineBoard.get(i).add(new Square(i,j));
+                mineBoard[i][j] = new Square(i,j);
             }
         }
 
         placeMines();
+        checkAllSquares();
+
     }
 
     public void placeMines(){
@@ -31,13 +31,15 @@ public class MineBoard {
             Random rand = new Random();
             int rm = rand.nextInt(row);
             int cm = rand.nextInt(column);
-            if (!mineBoard.get(rm).get(cm).hasMine()) {
-                mineBoard.get(rm).get(cm).addMine();
+            if (!mineBoard[rm][cm].hasMine()) {
+                mineBoard[rm][cm].addMine();
             }
             else{
                 i--;
             }
         }
+
+
     }
 
     public boolean isValidSquare(int row, int column){
@@ -51,30 +53,55 @@ public class MineBoard {
     }
 
     public void checkMines(int row, int column){
-        if (mineBoard.get(row).get(column).hasMine()){
-            mineBoard.get(row).get(column).addMine();
+        if (mineBoard[row][column].hasMine()){
+            mineBoard[row][column].addMine();
         }
         else{
             int count = 0;
             for (int i = row - 1; i <= row + 1; i++){
-                for (int j = column - 1; j <= column; j++){
+                for (int j = column - 1; j <= column + 1; j++){
                     if (isValidSquare(i, j)){
-                        if (mineBoard.get(i).get(j).hasMine()){
+                        if (mineBoard[i][j].hasMine()){
                             count++;
                         }
                     }
                 }
             }
-            mineBoard.get(row).get(column).setMineNumber(count);
+            mineBoard[row][column].setMineNumber(count);
+        }
+    }
+
+    public void checkAllSquares() {
+        for (int i = 0; i < row; i++){
+            for (int j = 0; j < column; j++){
+                checkMines(i,j);
+
+            }
         }
     }
 
     public void flagMine(int row, int column){
-        mineBoard.get(row).get(column).flag();
+        mineBoard[row][column].flag();
     }
 
     public void deFlagMine(int row, int column){
-        mineBoard.get(row).get(column).deFlag();
+        mineBoard[row][column].deFlag();
     }
+
+    public Square[][] getBoard(){
+        return mineBoard;
+    }
+
+    public void print() {
+        for (int i = 0; i < row; i++){
+            for (int j = 0; j < column; j++){
+                checkMines(i,j);
+                System.out.printf("%d " , mineBoard[i][j].getMineNumber());
+            }
+            System.out.printf("\n");
+        }
+    }
+
+
 
 }
