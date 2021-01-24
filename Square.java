@@ -4,11 +4,18 @@ public class Square {
     int mineNumber;
     boolean isRevealed;
     boolean isFlagged;
+    int[] location = {0 , 0};
 
     public Square(){
         mineNumber = 0;
         isRevealed = false;
         isFlagged = false;
+    }
+
+    public Square(int row, int column){
+        super();
+        location[0] = row;
+        location[1] = column;
     }
 
     public boolean getReveal(){
@@ -42,8 +49,12 @@ public class Square {
         isFlagged = true;
     }
 
-    public void deflag(){
+    public void deFlag(){
         isFlagged = false;
+    }
+
+    public int[] getLocation(){
+        return location;
     }
 
 }
