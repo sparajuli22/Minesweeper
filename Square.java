@@ -57,4 +57,5 @@ public class Square {
         return location;
     }
 
+    public void hide() { isRevealed = false;    }
 }
