@@ -19,10 +19,12 @@ public class MainActivity extends AppCompatActivity {
 
     int _rows = 9;
     int _columns = 9;
+    int _mines = 12;
     Button[][] buttons = new Button[_rows][_columns];
-    MineBoard board = new MineBoard(_rows,_columns,12);
+    MineBoard board = new MineBoard(_rows,_columns,_mines);
     Button restart;
     boolean gameOver;
+    int squaresLeft = _rows * _columns - _mines;
 
     TableLayout boardViewer;
     @Override
@@ -36,7 +38,10 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 boardViewer.removeAllViews();
+                board = new MineBoard(_rows,_columns, _mines);
                 setupBoard();
+                squaresLeft = _rows * _columns - _mines;
+                board.hideAll();
             }
         });
 
@@ -62,14 +67,19 @@ public class MainActivity extends AppCompatActivity {
                 buttons[i][j].setText(" ");
                 buttons[i][j].setTypeface(Typeface.DEFAULT_BOLD);
                 buttons[i][j].setBackgroundResource(R.drawable.squarebtn);
-                buttons[i][j].setPadding(2,2,2,2);
+                //buttons[i][j].setPadding(2,2,2,2);
+                buttons[i][j].setEnabled(true);
                 int finalRow = i;
                 int finalColumn = j;
                 buttons[i][j].setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
+                        if (squaresLeft == _rows * _columns - _mines){
+                            board.placeMines(finalRow, finalColumn);
+                        }
                         reveal(finalRow, finalColumn);
                         endIfMine(finalRow, finalColumn);
+                        checkIfWon();
                     }
                 });
                 newRow.addView(buttons[i][j]);
@@ -82,43 +92,54 @@ public class MainActivity extends AppCompatActivity {
         if ((row < 0 || column < 0 || row >= 9|| column >= 9)) {
             return;
         }
+        if (!board.getBoard()[row][column].getReveal()) {
+            int squareValue = board.getBoard()[row][column].getMineNumber();
+            board.revealMine(row, column);
+            String str;
+            switch (squareValue) {
+                case 0:
+                    str = " ";
+                    break;
+                default:
+                    str = String.valueOf(squareValue);
+                    if (squareValue == 1) {
+                        buttons[row][column].setTextColor(Color.BLACK);
+                    } else if (squareValue == 2) {
+                        buttons[row][column].setTextColor(Color.GREEN);
+                    } else {
+                        buttons[row][column].setTextColor(Color.MAGENTA);
+                    }
+            }
+            if (board.getBoard()[row][column].hasMine()) {
+                str = "X";
+                buttons[row][column].setTextColor(Color.RED);
+            }
+            buttons[row][column].setBackgroundResource(R.drawable.pressedbtn);
+            buttons[row][column].setText(str);
+            squaresLeft--;
+            TextView t = (TextView) findViewById(R.id.Header);
+            t.setText(String.format("%d Squares left", squaresLeft));
 
-        int squareValue = board.getBoard()[row][column].getMineNumber();
-        String str;
-        switch(squareValue){
-            case 0:
-                str = " ";
-                break;
-            default:
-                str = String.valueOf(squareValue);
-                if (squareValue == 1){
-                    buttons[row][column].setTextColor(Color.BLACK);
-                }
-                else if (squareValue == 2){
-                    buttons[row][column].setTextColor(Color.GREEN);
-                }
-                else {
-                    buttons[row][column].setTextColor(Color.MAGENTA);
-                }
-        }
-        if(board.getBoard()[row][column].hasMine()){
-            str = "X";
-            buttons[row][column].setTextColor(Color.RED);
-        }
-        buttons[row][column].setBackgroundResource(R.drawable.pressedbtn);
-        buttons[row][column].setText(str);
-        buttons[row][column].setEnabled(false);
 
-        if (squareValue == 0){
-           reveal(row + 1, column);
-           reveal(row, column + 1);
-           reveal(row + 1, column + 1);
-           // reveal(row - 1, column + 1);
-          //  reveal(row , column - 1);
+            if (squareValue == 0) {
+                reveal(row + 1, column);
+                reveal(row, column + 1);
+                reveal(row + 1, column + 1);
+                reveal(row - 1, column + 1);
+                reveal(row , column - 1);
+                reveal(row - 1, column - 1);
+                reveal(row -1, column);
 
+            } else {
+                return;
+            }
         }
-        else{
-            return;
+    }
+
+    private void checkIfWon(){
+        if (squaresLeft == 0){
+            TextView t = (TextView) findViewById(R.id.Header);
+            t.setText(String.format("You won !!!!!!"));
         }
     }
 
