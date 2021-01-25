@@ -123,12 +123,14 @@ public class MainActivity extends AppCompatActivity {
 
             if (squareValue == 0) {
                 reveal(row + 1, column);
-                reveal(row, column + 1);
+                reveal(row + 1, column - 1);
                 reveal(row + 1, column + 1);
-                reveal(row - 1, column + 1);
+                reveal(row, column + 1);
                 reveal(row , column - 1);
+                reveal(row - 1, column + 1);
                 reveal(row - 1, column - 1);
                 reveal(row -1, column);
+
 
             } else {
                 return;
