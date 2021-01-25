@@ -21,24 +21,21 @@ public class MineBoard {
             }
         }
 
-        placeMines();
-        checkAllSquares();
-
     }
 
-    public void placeMines(){
+    public void placeMines(int frow, int fcol){
         for(int i =0; i < mines; i++) {
             Random rand = new Random();
             int rm = rand.nextInt(row);
             int cm = rand.nextInt(column);
-            if (!mineBoard[rm][cm].hasMine()) {
+            if (!(mineBoard[rm][cm].hasMine() || (rm >= frow - 1 && rm <= frow + 1 ) || (cm >= fcol && cm <= fcol ))) {
                 mineBoard[rm][cm].addMine();
             }
             else{
                 i--;
             }
         }
-
+        checkAllSquares();
 
     }
 
@@ -69,6 +66,10 @@ public class MineBoard {
             }
             mineBoard[row][column].setMineNumber(count);
         }
+    }
+
+    public void revealMine(int row, int column){
+        mineBoard[row][column].reveal();
     }
 
     public void checkAllSquares() {
@@ -103,5 +104,12 @@ public class MineBoard {
     }
 
 
-
+    public void hideAll() {
+        for (int i = 0; i < row; i++){
+            for (int j = 0; j < column; j++) {
+                mineBoard[i][j].hide();
+            }
+        }
+    }
 }
+
