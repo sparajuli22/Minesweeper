@@ -22,6 +22,10 @@ public class Square {
         return isRevealed;
     }
 
+    public boolean getFlag(){
+        return isFlagged;
+    }
+
     public void reveal(){
         isRevealed = true;
     }

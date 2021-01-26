@@ -24,7 +24,7 @@ public class MainActivity extends AppCompatActivity {
     Button[][] buttons = new Button[_rows][_columns];
     MineBoard board = new MineBoard(_rows,_columns,_mines);
     Button restart;
-    boolean gameOver;
+    boolean gameOver = false;
     int squaresLeft = _rows * _columns - _mines;
 
     TableLayout boardViewer;
@@ -55,9 +55,9 @@ public class MainActivity extends AppCompatActivity {
         gameOver = false;
 
         TextView t = (TextView) findViewById(R.id.square);
-        t.setText(String.format("%d Squares left", squaresLeft));
+        t.setText(String.format("Click a button"));
         TextView f = (TextView) findViewById(R.id.flag);
-        f.setText(String.format("%d Flags left", _mines - _flags));
+        f.setText(String.format("to start"));
         for (int i = 0; i < _rows; i++){
             TableRow newRow = new TableRow(this);
             TableLayout.LayoutParams y = new TableLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, 0);
@@ -104,7 +104,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void checkFlag(int row, int column) {
-        if (!board.getBoard()[row][column].isFlagged) {
+        if (!board.getBoard()[row][column].getFlag() && !board.getBoard()[row][column].getReveal()) {
             if (_flags < _mines) {
                 board.flagMine(row, column);
                 buttons[row][column].setBackgroundResource(R.drawable.flag);
@@ -129,6 +129,13 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
         if (!board.getBoard()[row][column].getReveal()) {
+            if (board.getBoard()[row][column].getFlag()){
+                board.deFlagMine(row, column);
+                _flags--;
+                TextView f = (TextView) findViewById(R.id.flag);
+                f.setText(String.format("%d Flags left", _mines - _flags));
+            }
+
             int squareValue = board.getBoard()[row][column].getMineNumber();
             board.revealMine(row, column);
             String str;
@@ -146,15 +153,19 @@ public class MainActivity extends AppCompatActivity {
                         buttons[row][column].setTextColor(Color.MAGENTA);
                     }
             }
-            if (board.getBoard()[row][column].hasMine()) {
-                str = "X";
-                buttons[row][column].setTextColor(Color.RED);
-            }
             buttons[row][column].setBackgroundResource(R.drawable.pressedbtn);
+
+            if (board.getBoard()[row][column].hasMine()) {
+                str = " ";
+                buttons[row][column].setBackgroundResource(R.drawable.minebtn);
+            }
+
             buttons[row][column].setText(str);
             squaresLeft--;
             TextView t = (TextView) findViewById(R.id.square);
             t.setText(String.format("%d Squares left", squaresLeft));
+
+            buttons[row][column].setEnabled(false);
 
 
             if (squareValue == 0) {
@@ -175,7 +186,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void checkIfWon(){
-        if (squaresLeft == 0){
+        if (squaresLeft == 0 && gameOver == false){
 
             for (int i = 0; i < 9; i++) {
                 for (int j = 0; j < 9; j++) {
@@ -210,6 +221,7 @@ public class MainActivity extends AppCompatActivity {
                     buttons[i][j].setEnabled(false);
                 }
             }
+            gameOver = true;
             TextView t = (TextView) findViewById(R.id.square);
             t.setText(String.format("Game"));
 
